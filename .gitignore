@@ -1,2 +1,6 @@
 # Project exclude paths
 /account-service/target/
+/saga/customer-saga/target/
+/saga/order-saga/target/
+.DS_Store
+.vscode

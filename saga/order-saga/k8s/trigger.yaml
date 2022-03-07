@@ -2,6 +2,8 @@ apiVersion: eventing.knative.dev/v1
 kind: Trigger
 metadata:
   name: order-saga-trigger
+  annotations:
+    eventing.knative.dev/injection: enabled
 spec:
   broker: default
   filter:

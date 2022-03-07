@@ -31,7 +31,7 @@ public class OrderRoute extends RouteBuilder {
             .setBody(exchange -> new Order(null, r.nextInt(10) + 1, r.nextInt(10) + 1, 100, 1, OrderStatus.NEW))
             .to("jpa:" + Order.class.getName())
             .marshal().json(JsonLibrary.Jackson)
-            .log("New Order: ${body}")
+            .log("New Order!: ${body}")
             .toD("kafka:order-events?brokers=${env.KAFKA_BOOTSTRAP_SERVERS}");
 
         JacksonDataFormat format = new JacksonDataFormat();
@@ -40,21 +40,26 @@ public class OrderRoute extends RouteBuilder {
         rest("/orders")
             .post("/confirm").consumes("application/json")//.type(Order.class)
             .route()
+                .log("Recive message[Debug]: ${body}") //debug
                 .unmarshal().json(JsonLibrary.Jackson, Order.class)
                 .toD("jpa:" + Order.class.getName() + "?query=select o from Order o where o.id= ${body.id}")
                 .log("Found Order: ${body[0]}")
                 .choice()
                     .when().simple("${body[0].status.toString()} == 'NEW'")
-                        .setBody(exchange -> updateOrderStatus(exchange, OrderStatus.IN_PROGRESS))
+//                        .setBody(exchange -> updateOrderStatus(exchange, OrderStatus.IN_PROGRESS))
+                        .setBody(exchange -> updateOrderStatus(exchange, OrderStatus.CONFIRMED))
+                        .marshal().json(JsonLibrary.Jackson)
+                        .log("Order confirmed from Status:NEW: ${body}")
+                        .toD("kafka:order-events?brokers=${env.KAFKA_BOOTSTRAP_SERVERS}")
                     .otherwise()
                         .setBody(exchange -> updateOrderStatus(exchange, OrderStatus.CONFIRMED))
                         .marshal().json(JsonLibrary.Jackson)
-                        .log("Order confirmed: ${body}")
+                        .log("Order confirmed from Status:OTHERS: ${body}")
                         .toD("kafka:order-events?brokers=${env.KAFKA_BOOTSTRAP_SERVERS}")
                 .end()
-                .unmarshal().json(JsonLibrary.Jackson, Order.class)
-                .to("jpa:" + Order.class.getName() + "?useExecuteUpdate=true")
-                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(201)).setBody(constant(null))
+            .unmarshal().json(JsonLibrary.Jackson, Order.class)
+            .to("jpa:" + Order.class.getName() + "?useExecuteUpdate=true")
+            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(201)).setBody(constant(null))
         .endRest();
     }
 
