@@ -145,7 +145,7 @@ $ mvn clean fabric8:deploy -Dfabric8-maven-plugin.version=4.4.1
     - Deploymentに下記の環境変数を設定
         - KAFKA_BROKERCONNECT my-cluster-kafka-brokers:9092
 
-    - ポートが8080になるので9000に変更
+    - Targetポートを9000に設定
 
     > 参考
 
@@ -166,8 +166,8 @@ $ mvn clean fabric8:deploy -Dfabric8-maven-plugin.version=4.4.1
     apiVersion: operator.knative.dev/v1alpha1
     kind: KnativeServing
     metadata:
-    name: knative-serving
-    namespace: knative-serving
+      name: knative-serving
+      namespace: knative-serving
     spec: {}
     ```
 
@@ -177,8 +177,8 @@ $ mvn clean fabric8:deploy -Dfabric8-maven-plugin.version=4.4.1
     kind: KnativeEventing
     apiVersion: operator.knative.dev/v1alpha1
     metadata:
-    name: knative-eventing
-    namespace: knative-eventing
+      name: knative-eventing
+      namespace: knative-eventing
     spec: {}
     ```
 
@@ -190,24 +190,24 @@ $ mvn clean fabric8:deploy -Dfabric8-maven-plugin.version=4.4.1
     apiVersion: operator.serverless.openshift.io/v1alpha1
     kind: KnativeKafka
     metadata:
-    name: knative-kafka
-    namespace: knative-eventing
+      name: knative-kafka
+      namespace: knative-eventing
     spec:
-    broker:
+      broker:
         defaultConfig:
-        authSecretName: ''
-        bootstrapServers: 'my-cluster-kafka-bootstrap.kafka:9092'
-        numPartitions: 10
-        replicationFactor: 3
+          authSecretName: ''
+          bootstrapServers: 'my-cluster-kafka-bootstrap.kafka:9092'
+          numPartitions: 10
+          replicationFactor: 3
         enabled: true
-    channel:
+      channel:
         authSecretName: ''
         authSecretNamespace: ''
         bootstrapServers: 'my-cluster-kafka-bootstrap.kafka:9092'
         enabled: false
-    high-availability:
+      high-availability:
         replicas: 1
-    source:
+      source:
         enabled: true
     ```
 
@@ -226,11 +226,11 @@ $ mvn clean fabric8:deploy -Dfabric8-maven-plugin.version=4.4.1
     apiVersion: eventing.knative.dev/v1
     kind: Broker
     metadata:
-    annotations:
+      annotations:
         eventing.knative.dev/broker.class: Kafka
-    name: default
+      name: default
     spec:
-    config:
+      config:
         apiVersion: v1
         kind: ConfigMap
         name: kafka-broker-config
@@ -261,7 +261,7 @@ $ mvn clean fabric8:deploy -Dfabric8-maven-plugin.version=4.4.1
 
     cd saga/customer-saga
     mvn clean package
-    cd saga/order-saga
+    cd ../order-saga
     mvn clean package
     ```
 
